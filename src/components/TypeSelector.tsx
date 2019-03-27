@@ -45,7 +45,7 @@ export const TypeSelector: React.FunctionComponent<TypeSelectorProps> = (props) 
             onChange={(event) => selectType(event)}
             value={state.selectedType !== undefined ? state.selectedType.name : undefined}>
             <option value={undefined}>Select a thing</option>
-            {outputTypes.map(type => <option value={type.name}>{type.name}</option>)}
+            {outputTypes.map(type => <option value={type.name} key={type.name}>{type.name}</option>)}
         </select>
     </>)
 };
