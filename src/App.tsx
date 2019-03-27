@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import { heavyModularFrame, OutputType } from './types';
+import { OutputType } from './types';
 import { Calculator } from './components/Calculator';
 import { TypeSelector } from './components/TypeSelector';
 
