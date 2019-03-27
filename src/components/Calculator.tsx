@@ -15,7 +15,7 @@ interface CalculateResultNode {
 }
 
 function calculateOutput(type: OutputType, amount: number): [CalculateResultNode, number] {
-    const childOutput = type.inputTypes.map(x => calculateOutput(x.type, x.amount * amount));
+    const childOutput = type.inputTypes.map(x => calculateOutput(x.type, (x.amount / type.outputAmount) * amount));
 
     const childNodes = childOutput.map(x => x[0]);
 
