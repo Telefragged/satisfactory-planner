@@ -32,13 +32,16 @@ export const AmountSelector: React.FunctionComponent<AmountSelectorProps> = (pro
 
     const selectAmount = (event: React.ChangeEvent<HTMLInputElement>) => {
 
-        let value = event.currentTarget.valueAsNumber;
+        const value =
+            Number.isNaN(event.currentTarget.valueAsNumber)
+                ? undefined
+                : event.currentTarget.valueAsNumber;
 
         if(onChange !== undefined) {
             onChange(value);
         }
 
-        dispatch({type: 'selectType', value: event.currentTarget.valueAsNumber});
+        dispatch({type: 'selectType', value: value});
     };
 
     return (<input value={state.selectedAmount} type="number" onChange={selectAmount}></input>)
