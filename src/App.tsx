@@ -1,28 +1,39 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
+import { heavyModularFrame, OutputType } from './types';
+import { Calculator } from './components/Calculator';
+import { TypeSelector } from './components/TypeSelector';
 
-class App extends Component {
-  render() {
+interface State {
+    selectedType?: OutputType;
+    amount?: number;
+};
+
+interface Action {
+    type: 'selectType';
+    value: any;
+}
+
+function reducer(state: State, action: Action) {
+    switch (action.type) {
+        case 'selectType':
+            return {...state, selectedType: action.value as OutputType | undefined};
+        default:
+            return state;
+    }
+}
+
+const App = ({}) => {
+    const [state, dispatch] = React.useReducer(reducer, {});
+
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.tsx</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
+        <div className="App">
+            <TypeSelector onChange={type => dispatch({type: 'selectType', value: type})}/>
+            {state.selectedType !== undefined
+                ? <Calculator selectedType={state.selectedType} amount={1} />
+                : <p>Select a type pls</p>}
+        </div>
     );
-  }
 }
 
 export default App;
