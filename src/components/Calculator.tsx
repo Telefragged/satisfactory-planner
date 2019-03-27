@@ -27,7 +27,7 @@ function calculateOutput(type: OutputType, amount: number): [CalculateResultNode
 }
 
 function calculateSharedOutput(root: CalculateResultNode)
-    : {shared: CalculateResultNode[], nonShared: CalculateResultNode} {
+    : {shared: CalculateResultNode[], percentPopulatedRoot: CalculateResultNode} {
     const flatten = (root: CalculateResultNode) => {
         const children: CalculateResultNode[] = root.childNodes.flatMap(node => flatten(node));
 
@@ -58,16 +58,16 @@ function calculateSharedOutput(root: CalculateResultNode)
         .filter(node => node.type.name === k)
         .reduce((acc, cur) => ({...acc, numManufacturers: acc.numManufacturers + cur.numManufacturers, childNodes: []})));
 
-    const nonShared = populatePercents(shared, root);
+    const percentPopulatedRoot = populatePercents(shared, root);
 
-    return {shared, nonShared};
+    return {shared, percentPopulatedRoot};
 }
 
 const renderNode = (depth: number, node: CalculateResultNode): React.ReactNode => {
     const outputAmount = node.numManufacturers * node.type.productionRate;
     return <>
         <p style={{ paddingLeft: depth * 20 }}>
-        {node.type.name}: {node.numManufacturers} {node.type.producedBy.name}(s) {outputAmount}/min {node.percentOfTotal !==1 ? String(Math.round(node.percentOfTotal * 10000) / 100) + "%" : ""}
+        {node.type.name}: {_.round(node.numManufacturers, 2)} {node.type.producedBy.name}(s) {_.round(outputAmount, 2)}/min {node.percentOfTotal !==1 ? String(_.round(node.percentOfTotal * 100, 2)) + "%" : ""}
             </p>
         {node.childNodes.map(node => renderNode(depth + 1, node))}
     </>;
@@ -77,7 +77,7 @@ export class Calculator extends React.Component<CalculatorProps, {}> {
     render() {
         const [outputNode, power] = calculateOutput(this.props.selectedType, this.props.amount);
 
-        const {shared, nonShared} = calculateSharedOutput(outputNode);
+        const {shared, percentPopulatedRoot: nonShared} = calculateSharedOutput(outputNode);
         return <>
             {renderNode(0, nonShared)}
             <p>Total power: {power}MW</p>
