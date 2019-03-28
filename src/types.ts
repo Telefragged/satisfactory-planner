@@ -1,17 +1,17 @@
 export type Producer = {
     name: string;
     powerConsumption: number;
+    image: string
 }
 
-const drill: Producer = { name: "Drill", powerConsumption: 4 }
-const oilPump: Producer = { name: "Oil Pump", powerConsumption: 20 }
-const smelter: Producer = { name: "Smelter", powerConsumption: 4 }
-const foundry: Producer = { name: "Foundry", powerConsumption: 16 }
-const constructor: Producer = { name: "Constructor", powerConsumption: 4 }
-const assembler: Producer = { name: "Assembler", powerConsumption: 15 }
-const manufacturer: Producer = { name: "Manufacturer", powerConsumption: 55 }
-const oilRefinery: Producer = { name: "Oil Refinery", powerConsumption: 50 }
-
+const drill: Producer = { name: "Drill", powerConsumption: 4, image: require('./img/mk1_miner.png') }
+const oilPump: Producer = { name: "Oil Pump", powerConsumption: 20, image: require('./img/oil_pump.png')}
+const smelter: Producer = { name: "Smelter", powerConsumption: 4, image: require('./img/smelter.png') }
+const foundry: Producer = { name: "Foundry", powerConsumption: 16, image: require('./img/foundry.png') }
+const constructor: Producer = { name: "Constructor", powerConsumption: 4, image: require('./img/constructor.png') }
+const assembler: Producer = { name: "Assembler", powerConsumption: 15, image: require('./img/assembler.png') }
+const manufacturer: Producer = { name: "Manufacturer", powerConsumption: 55, image: require('./img/manufacturer.png') }
+const oilRefinery: Producer = { name: "Oil Refinery", powerConsumption: 50, image: require('./img/oril_refinery.png') }
 
 export type OutputType = {
     name: string;

@@ -65,9 +65,10 @@ function calculateSharedOutput(root: CalculateResultNode)
 
 const renderNode = (depth: number, node: CalculateResultNode): React.ReactNode => {
     const outputAmount = node.numManufacturers * node.type.productionRate;
+    const producerImage = node.type.producedBy.image
     return <>
         <p style={{ paddingLeft: depth * 20 }}>
-        {node.type.name}: {_.round(node.numManufacturers, 2)} {node.type.producedBy.name}(s) {_.round(outputAmount, 2)}/min {node.percentOfTotal !==1 ? String(_.round(node.percentOfTotal * 100, 2)) + "%" : ""}
+        {node.type.name}: {_.round(node.numManufacturers, 2)} {node.type.producedBy.name}(s) {_.round(outputAmount, 2)}/min <img src={producerImage} width={100} height={100}/> {node.percentOfTotal !==1 ? String(_.round(node.percentOfTotal * 100, 2)) + "%" : ""}
             </p>
         {node.childNodes.map(node => renderNode(depth + 1, node))}
     </>;
