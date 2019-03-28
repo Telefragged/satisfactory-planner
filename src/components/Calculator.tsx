@@ -63,13 +63,14 @@ function calculateSharedOutput(root: CalculateResultNode)
     return {shared, percentPopulatedRoot};
 }
 
-const renderNode = (depth: number, node: CalculateResultNode): React.ReactNode => {
+const renderNode = (node: CalculateResultNode, depth?: number): React.ReactNode => {
     const outputAmount = node.numManufacturers * node.type.productionRate;
+    const realDepth = depth || 0;
     return <>
-        <p style={{ paddingLeft: depth * 20 }}>
+        <p style={{ paddingLeft: realDepth * 20 }}>
         {node.type.name}: {_.round(node.numManufacturers, 2)} {node.type.producedBy.name}(s) {_.round(outputAmount, 2)}/min {node.percentOfTotal !==1 ? String(_.round(node.percentOfTotal * 100, 2)) + "%" : ""}
             </p>
-        {node.childNodes.map(node => renderNode(depth + 1, node))}
+        {node.childNodes.map(node => renderNode(node, realDepth + 1))}
     </>;
 }
 
@@ -79,10 +80,10 @@ export class Calculator extends React.Component<CalculatorProps, {}> {
 
         const {shared, percentPopulatedRoot: nonShared} = calculateSharedOutput(outputNode);
         return <>
-            {renderNode(0, nonShared)}
+            {renderNode(nonShared)}
             <p>Total power: {power}MW</p>
             <p>Shared values</p>
-            {shared.map(node => renderNode(0, node))}
+            {shared.map(node => renderNode(node))}
         </>
     }
 }
