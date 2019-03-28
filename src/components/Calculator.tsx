@@ -57,39 +57,32 @@ function getSharedResults(results: CalculateResult[]) {
     return sharedResults;
 }
 
-function applySettings(results: CalculateResult[], settings: CalculatorSettings): [CalculateResult[], number | undefined] {
+function applySettings(result: CalculateResult, settings: CalculatorSettings): [CalculateResult, number | undefined] {
     const applyOverclock
-        : (results: CalculateResult[], maxOverclock: number) => [CalculateResult[], number] =
-        (results, maxOverclock) => {
-            const sortedResults = _.sortBy(results, (result => [deduceProducer(result.type).powerConsumption, result.producerInfo.amount]));
+        : (result: CalculateResult, maxOverclock: number) => [CalculateResult, number] =
+        (result, maxOverclock) => {
+            const numCoresPerProducer = (overclockAmount: number) => {
+                if (overclockAmount <= 1) return 0;
+                if (overclockAmount <= 1.5) return 1;
+                if (overclockAmount <= 2) return 2;
 
-            const optimizedResult = sortedResults.reduce(([acc, numCores], cur) => {
+                return 3;
+            }
 
-                const numCoresPerProducer = (overclockAmount: number) => {
-                    if (overclockAmount <= 1) return 0;
-                    if (overclockAmount <= 1.5) return 1;
-                    if (overclockAmount <= 2) return 2;
+            const producerAmount = result.producerInfo.amount;
 
-                    return 3;
-                }
+            const targetProducers = Math.ceil(producerAmount / Math.min(maxOverclock, producerAmount));
 
-                const producerAmount = cur.producerInfo.amount;
+            const overclockAmount = producerAmount / targetProducers;
 
-                const targetProducers = Math.ceil(producerAmount / Math.min(maxOverclock, producerAmount));
+            const producerInfo = { overclock: overclockAmount, amount: targetProducers };
 
-                const overclockAmount = producerAmount / targetProducers;
+            const neededCores = numCoresPerProducer(overclockAmount) * targetProducers;
 
-                const producerInfo = { overclock: overclockAmount, amount: targetProducers };
-
-                const neededCores = numCoresPerProducer(overclockAmount) * targetProducers;
-
-                return [acc.concat({ ...cur, producerInfo }), numCores + neededCores] as [CalculateResult[], number];
-            }, [[], 0] as [CalculateResult[], number]);
-
-            return optimizedResult;
+            return [{...result, producerInfo}, neededCores];
         }
 
-    return settings.maxOverclock ? applyOverclock(results, settings.maxOverclock) : [results, undefined];
+    return settings.maxOverclock ? applyOverclock(result, settings.maxOverclock) : [result, undefined];
 }
 
 function calculateOutput(type: OutputType, amount: number, results: CalculateResult[], sharedResults: CalculateResult[]): Node {
@@ -98,11 +91,13 @@ function calculateOutput(type: OutputType, amount: number, results: CalculateRes
     const sharedResult = sharedResults.find(result => result.type.name === type.name);
 
     if(sharedResult) {
+        const percentOfTotal = 
+            amount / (sharedResult.type.productionRate * sharedResult.producerInfo.overclock * sharedResult.producerInfo.amount)
+
         return {
             kind: 'shared',
             type,
-            percentOfTotal: (amount /
-                (sharedResult.type.productionRate * sharedResult.producerInfo.overclock * sharedResult.producerInfo.amount))};
+            percentOfTotal};
     }
 
     const result = results.find(result => result.type.name === type.name);
@@ -142,7 +137,15 @@ export class Calculator extends React.Component<CalculatorProps, {}> {
 
         const combinedResults = _.differenceBy(results, sharedResults, result => result.type.name);
 
-        const [optimizedResult, numCores] = applySettings(combinedResults, this.props);
+        const [optimizedResult, numCores] = 
+            combinedResults.reduce(([acc, numCores], cur) => {
+                const [newResult, cores] = applySettings(cur, this.props);
+
+                return [
+                    acc.concat(newResult),
+                    cores !== undefined && numCores !== undefined ? cores + numCores : undefined
+                ] as [CalculateResult[], number | undefined];
+            }, [[], 0] as [CalculateResult[], number | undefined])
 
         const outputNode = calculateOutput(this.props.selectedType, this.props.amount, optimizedResult, sharedResults);
 
@@ -151,12 +154,28 @@ export class Calculator extends React.Component<CalculatorProps, {}> {
                 acc
                 + deduceProducer(cur.type).powerConsumption * Math.pow(cur.producerInfo.overclock, 1.6) * cur.producerInfo.amount, 0);
 
+        const [sharedOptimizedResult] = 
+            sharedResults.reduce(([acc, _numCores], cur) => {
+                const [newResult] = applySettings(cur, this.props);
+
+                return [acc.concat(newResult),
+                     undefined] as [CalculateResult[], number | undefined];
+            }, [[], 0] as [CalculateResult[], number | undefined])
+
+        const sharedPrintable = sharedOptimizedResult.map(result => {
+            return calculateOutput(
+                result.type,
+                result.type.productionRate * result.producerInfo.overclock * result.producerInfo.amount,
+                sharedOptimizedResult,
+                _.differenceBy(sharedOptimizedResult, [result], r => r.type.name))
+            });
+
         return <>
             {renderNode(outputNode)}
-            {numCores && numCores > 0 ? <p>Total cores: {numCores}</p> : <></>}
+            {numCores && numCores > 0 ? <p>Cores required: {numCores}</p> : <></>}
             {<p>Total power: {power}MW</p>}
-            {/* <p>Shared values</p>
-            {shared.map(node => renderNode(node))} } */}
+            <p>Shared values</p>
+            {sharedPrintable.map(node => renderNode(node))}
         </>
     }
 }
