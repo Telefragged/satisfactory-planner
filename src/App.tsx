@@ -10,17 +10,24 @@ interface State {
     amount?: number;
 };
 
-interface Action {
-    type: 'selectType' | 'selectAmount';
-    value: any;
+type selectTypeAction = {
+    type: 'selectType';
+    value: OutputType | undefined;
 }
+
+type selectAmountAction = {
+    type: 'selectAmount';
+    value: number | undefined;
+}
+
+type Action = selectTypeAction | selectAmountAction;
 
 function reducer(state: State, action: Action) {
     switch (action.type) {
         case 'selectType':
-            return { ...state, selectedType: action.value as OutputType | undefined };
+            return { ...state, selectedType: action.value};
         case 'selectAmount':
-            return { ...state, amount: action.value as number | undefined };
+            return { ...state, amount: action.value};
         default:
             return state;
     }
