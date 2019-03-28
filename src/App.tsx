@@ -43,7 +43,7 @@ const App = ({ }) => {
                 <AmountSelector onChange={amount => dispatch({type: 'selectAmount', value: amount})}/>
             </div>
             {state.selectedType !== undefined && state.amount !== undefined
-                ? <Calculator selectedType={state.selectedType} amount={state.amount} />
+                ? <Calculator selectedType={state.selectedType} amount={state.amount} maxOverclock={2.5} />
                 : <p>Select a type pls</p>}
         </div>
     );
