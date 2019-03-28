@@ -1,6 +1,6 @@
 import * as React from 'react';
 import _ from 'lodash';
-import { OutputType } from '../types';
+import { OutputType, deduceProducer } from '../types';
 
 export interface CalculatorProps {
     selectedType: OutputType;
@@ -21,7 +21,7 @@ function calculateOutput(type: OutputType, amount: number): [CalculateResultNode
 
     const numManufacturers = amount / type.productionRate;
 
-    const power = childOutput.map(x => x[1]).reduce((acc, cur) => acc + cur, 0) + (type.producedBy.powerConsumption * Math.ceil(numManufacturers));
+    const power = childOutput.map(x => x[1]).reduce((acc, cur) => acc + cur, 0) + (deduceProducer(type).powerConsumption * Math.ceil(numManufacturers));
 
     return [{ type: type, numManufacturers: numManufacturers, childNodes: childNodes, percentOfTotal: 1 }, power];
 }
@@ -68,7 +68,7 @@ const renderNode = (node: CalculateResultNode, depth?: number): React.ReactNode 
     const realDepth = depth || 0;
     return <>
         <p style={{ paddingLeft: realDepth * 20 }}>
-        {node.type.name}: {_.round(node.numManufacturers, 2)} {node.type.producedBy.name}(s) {_.round(outputAmount, 2)}/min {node.percentOfTotal !==1 ? String(_.round(node.percentOfTotal * 100, 2)) + "%" : ""}
+        {node.type.name}: {_.round(node.numManufacturers, 2)} {deduceProducer(node.type).name}(s) {_.round(outputAmount, 2)}/min {node.percentOfTotal !==1 ? String(_.round(node.percentOfTotal * 100, 2)) + "%" : ""}
             </p>
         {node.childNodes.map(node => renderNode(node, realDepth + 1))}
     </>;
