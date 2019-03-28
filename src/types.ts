@@ -130,7 +130,7 @@ const copperIngot: OutputType = {
 
 const wire: OutputType = {
     name: "Wire",
-    productionRate: 15,
+    productionRate: 45,
     outputAmount: 3,
     inputTypes: [{type: copperIngot, amount: 1}]
 }
