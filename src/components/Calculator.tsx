@@ -79,7 +79,7 @@ function applySettings(result: CalculateResult, settings: CalculatorSettings): [
 
             const neededCores = numCoresPerProducer(overclockAmount) * targetProducers;
 
-            return [{...result, producerInfo}, neededCores];
+            return [{ ...result, producerInfo }, neededCores];
         }
 
     return settings.maxOverclock ? applyOverclock(result, settings.maxOverclock) : [result, undefined];
@@ -90,14 +90,15 @@ function calculateOutput(type: OutputType, amount: number, results: CalculateRes
 
     const sharedResult = sharedResults.find(result => result.type.name === type.name);
 
-    if(sharedResult) {
-        const percentOfTotal = 
+    if (sharedResult) {
+        const percentOfTotal =
             amount / (sharedResult.type.productionRate * sharedResult.producerInfo.overclock * sharedResult.producerInfo.amount)
 
         return {
             kind: 'shared',
             type,
-            percentOfTotal};
+            percentOfTotal
+        };
     }
 
     const result = results.find(result => result.type.name === type.name);
@@ -123,13 +124,13 @@ const renderNode = (node: Node, depth?: number): React.ReactNode => {
                 {node.childNodes.map(node => renderNode(node, realDepth + 1))}
             </>
         case 'shared':
-            return <p style={{paddingLeft: realDepth * 20}}>{node.type.name}: {_.round(node.percentOfTotal * 100, 3)}%</p>
+            return <p style={{ paddingLeft: realDepth * 20 }}>{node.type.name}: {_.round(node.percentOfTotal * 100, 3)}%</p>
     };
 }
 
 export class Calculator extends React.Component<CalculatorProps, {}> {
     render() {
-        const {selectedType, amount} = this.props;
+        const { selectedType, amount } = this.props;
 
         const results = calculateResults(selectedType, amount)
 
@@ -137,7 +138,7 @@ export class Calculator extends React.Component<CalculatorProps, {}> {
 
         const combinedResults = _.differenceBy(results, sharedResults, result => result.type.name).concat(sharedResults);
 
-        const [optimizedResult, numCores] = 
+        const [optimizedResult, numCores] =
             combinedResults.reduce(([acc, numCores], cur) => {
                 const [newResult, cores] = applySettings(cur, this.props);
 
@@ -149,17 +150,17 @@ export class Calculator extends React.Component<CalculatorProps, {}> {
 
         const outputNode = calculateOutput(this.props.selectedType, this.props.amount, optimizedResult, sharedResults);
 
-        const power = 
+        const power =
             optimizedResult.reduce((acc, cur) =>
                 acc
                 + deduceProducer(cur.type).powerConsumption * Math.pow(cur.producerInfo.overclock, 1.6) * cur.producerInfo.amount, 0);
 
-        const [sharedOptimizedResult] = 
+        const [sharedOptimizedResult] =
             sharedResults.reduce(([acc, _numCores], cur) => {
                 const [newResult] = applySettings(cur, this.props);
 
                 return [acc.concat(newResult),
-                     undefined] as [CalculateResult[], number | undefined];
+                    undefined] as [CalculateResult[], number | undefined];
             }, [[], 0] as [CalculateResult[], number | undefined])
 
         const sharedPrintable = sharedOptimizedResult.map(result => {
@@ -168,13 +169,13 @@ export class Calculator extends React.Component<CalculatorProps, {}> {
                 result.type.productionRate * result.producerInfo.overclock * result.producerInfo.amount,
                 sharedOptimizedResult,
                 _.differenceBy(sharedOptimizedResult, [result], r => r.type.name))
-            });
+        });
 
         return <>
             {renderNode(outputNode)}
             {numCores && numCores > 0 ? <p>Cores required: {numCores}</p> : <></>}
             {<p>Total power: {_.round(power, 3)}MW</p>}
-            <p>Shared values</p>
+            {sharedPrintable.length > 0 ? <p>Shared values</p> : null}
             {sharedPrintable.map(node => renderNode(node))}
         </>
     }
