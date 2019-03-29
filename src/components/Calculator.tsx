@@ -173,7 +173,7 @@ export class Calculator extends React.Component<CalculatorProps, {}> {
         return <>
             {renderNode(outputNode)}
             {numCores && numCores > 0 ? <p>Cores required: {numCores}</p> : <></>}
-            {<p>Total power: {power}MW</p>}
+            {<p>Total power: {_.round(power, 2)}MW</p>}
             <p>Shared values</p>
             {sharedPrintable.map(node => renderNode(node))}
         </>
