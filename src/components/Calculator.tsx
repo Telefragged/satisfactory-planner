@@ -135,7 +135,7 @@ export class Calculator extends React.Component<CalculatorProps, {}> {
 
         const sharedResults = getSharedResults(results);
 
-        const combinedResults = _.differenceBy(results, sharedResults, result => result.type.name);
+        const combinedResults = _.differenceBy(results, sharedResults, result => result.type.name).concat(sharedResults);
 
         const [optimizedResult, numCores] = 
             combinedResults.reduce(([acc, numCores], cur) => {
