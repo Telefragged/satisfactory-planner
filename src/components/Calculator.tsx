@@ -118,12 +118,12 @@ const renderNode = (node: Node, depth?: number): React.ReactNode => {
             const outputAmount = node.numManufacturers * (node.type.productionRate * (node.overclock ? node.overclock : 1));
             return <>
                 <p style={{ paddingLeft: realDepth * 20 }}>
-                    {node.type.name}: {_.round(node.numManufacturers, 2)} {deduceProducer(node.type).name}(s) {_.round(outputAmount, 2)}/min {node.overclock ? `${_.round(node.overclock * 100, 2)}% overclock` : ""}
+                    {node.type.name}: {_.round(node.numManufacturers, 3)} {deduceProducer(node.type).name}(s) {_.round(outputAmount, 3)}/min {node.overclock ? `${_.round(node.overclock * 100, 3)}% overclock` : ""}
                 </p>
                 {node.childNodes.map(node => renderNode(node, realDepth + 1))}
             </>
         case 'shared':
-            return <p style={{paddingLeft: realDepth * 20}}>{node.type.name}: {_.round(node.percentOfTotal * 100, 2)}%</p>
+            return <p style={{paddingLeft: realDepth * 20}}>{node.type.name}: {_.round(node.percentOfTotal * 100, 3)}%</p>
     };
 }
 
@@ -173,7 +173,7 @@ export class Calculator extends React.Component<CalculatorProps, {}> {
         return <>
             {renderNode(outputNode)}
             {numCores && numCores > 0 ? <p>Cores required: {numCores}</p> : <></>}
-            {<p>Total power: {_.round(power, 2)}MW</p>}
+            {<p>Total power: {_.round(power, 3)}MW</p>}
             <p>Shared values</p>
             {sharedPrintable.map(node => renderNode(node))}
         </>
