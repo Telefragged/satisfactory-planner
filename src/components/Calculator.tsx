@@ -27,6 +27,7 @@ type NonSharedNode = {
 type SharedNode = {
     kind: 'shared';
     type: OutputType;
+    adjustedOutput: number;
     percentOfTotal: number;
 }
 
@@ -94,9 +95,12 @@ function calculateOutput(type: OutputType, amount: number, results: CalculateRes
         const percentOfTotal =
             amount / (sharedResult.type.productionRate * sharedResult.producerInfo.overclock * sharedResult.producerInfo.amount)
 
+        const adjustedOutput = amount;
+
         return {
             kind: 'shared',
             type,
+            adjustedOutput,
             percentOfTotal
         };
     }
@@ -116,7 +120,7 @@ const renderNode = (node: Node, depth?: number): React.ReactNode => {
     const realDepth = depth || 0;
     switch (node.kind) {
         case 'nonShared':
-            const outputAmount = node.numManufacturers * (node.type.productionRate * (node.overclock ? node.overclock : 1));
+            const outputAmount = node.numManufacturers * node.type.productionRate * (node.overclock ? node.overclock : 1);
             return <>
                 <p style={{ paddingLeft: realDepth * 20 }}>
                     {node.type.name}: {_.round(node.numManufacturers, 3)} {deduceProducer(node.type).name}(s) {_.round(outputAmount, 3)}/min {node.overclock ? `${_.round(node.overclock * 100, 3)}% overclock` : ""}
@@ -124,7 +128,7 @@ const renderNode = (node: Node, depth?: number): React.ReactNode => {
                 {node.childNodes.map(node => renderNode(node, realDepth + 1))}
             </>
         case 'shared':
-            return <p style={{ paddingLeft: realDepth * 20 }}>{node.type.name}: {_.round(node.percentOfTotal * 100, 3)}%</p>
+            return <p style={{ paddingLeft: realDepth * 20 }}>{node.type.name}: {_.round(node.adjustedOutput, 3)}/min ({_.round(node.percentOfTotal * 100, 3)}%)</p>
     };
 }
 
@@ -153,7 +157,7 @@ export class Calculator extends React.Component<CalculatorProps, {}> {
         const power =
             optimizedResult.reduce((acc, cur) =>
                 acc
-                + deduceProducer(cur.type).powerConsumption * Math.pow(cur.producerInfo.overclock, 1.6) * cur.producerInfo.amount, 0);
+                + deduceProducer(cur.type).powerConsumption * (cur.producerInfo.overclock**1.6) * cur.producerInfo.amount, 0);
 
         const [sharedOptimizedResult] =
             sharedResults.reduce(([acc, _numCores], cur) => {
