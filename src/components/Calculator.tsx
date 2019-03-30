@@ -171,12 +171,25 @@ export class Calculator extends React.Component<CalculatorProps, {}> {
                 _.differenceBy(sharedOptimizedResult, [result], r => r.type.name))
         });
 
+        const assemblerCounts = optimizedResult.reduce((acc, cur) => {
+            const producerName = deduceProducer(cur.type).name;
+            const producerCount = cur.producerInfo.amount;
+
+            const currentCount = acc[producerName] || 0;
+
+            acc[producerName] = producerCount + currentCount;
+
+            return acc;
+        }, {} as { [key: string]: number })
+
         return <>
             {renderNode(outputNode)}
             {numCores && numCores > 0 ? <p>Cores required: {numCores}</p> : <></>}
             {<p>Total power: {_.round(power, 3)}MW</p>}
             {sharedPrintable.length > 0 ? <p>Shared values</p> : null}
             {sharedPrintable.map(node => renderNode(node))}
+            <p>Producer statistics:</p>
+            {_.map(assemblerCounts, (count, producer) => <p>{count} {producer}(s)</p>)}
         </>
     }
 }
