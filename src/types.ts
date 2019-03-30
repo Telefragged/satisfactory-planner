@@ -273,17 +273,23 @@ const quickWire: OutputType = {
 
 const plastic: OutputType = {
     name: "Plastic",
-    productionRate: 7.5,
+    productionRate: 22.5,
     outputAmount: 3,
     inputTypes: [{type: crudeOil, amount: 4}]
 }
 
 const rubber: OutputType = {
     name: "Rubber",
-    //need to check this
-    productionRate: 15,
+    productionRate: 30,
     outputAmount: 4,
     inputTypes: [{type: crudeOil, amount: 4}]
+}
+
+const fuel: OutputType = {
+    name: "Fuel",
+    productionRate: 37.5,
+    outputAmount: 5,
+    inputTypes: [{type: crudeOil, amount: 8}]
 }
 
 const circuitBoard: OutputType = {
@@ -364,6 +370,7 @@ export const outputTypes: OutputType[] = [
     quickWire,
     plastic,
     rubber,
+    fuel,
     circuitBoard,
     computer,
     aiLimiter,
