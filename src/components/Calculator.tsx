@@ -65,14 +65,11 @@ function getSharedResults(results: CalculateResult[]): { sharedResults: Calculat
                             return false;
                         }
                         const inputAmount = type.amount * (cur.type.productionRate / cur.type.outputAmount) * cur.producerInfo.amount * cur.producerInfo.overclock;
-                        console.log(result.type.name, inputAmount);
                         return inputAmount === (result.producerInfo.amount * result.producerInfo.overclock * result.type.productionRate);
                     });
 
             return acc.concat(sharedInputTypes);
         }, []);
-
-    console.log("UNIQUE!!!", sharedButUnique);
 
     return { sharedResults, sharedButUnique };
 }
