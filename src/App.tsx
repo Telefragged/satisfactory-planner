@@ -49,7 +49,7 @@ const App = ({ }) => {
         <div className="App">
             <div style={{ display: 'inline-block' }}>
                 <TypeSelector onChange={type => dispatch({ type: 'selectType', value: type })} />
-                <AmountSelector onChange={amount => dispatch({ type: 'selectAmount', value: amount })} />
+                <AmountSelector onChange={amount => dispatch({ type: 'selectAmount', value: amount })} step={state.selectedType ? state.selectedType.productionRate : 1} />
                 <OverclockSelector onChange={maxOverclock => dispatch({ type: 'selectOverclock', value: maxOverclock })} />
             </div>
             {state.selectedType !== undefined && state.amount !== undefined

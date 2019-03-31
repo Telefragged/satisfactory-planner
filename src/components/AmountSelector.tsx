@@ -1,6 +1,6 @@
 import * as React from 'react';
 import _ from 'lodash';
-import { OutputType, outputTypes } from '../types';
+import { OutputType } from '../types';
 
 interface State {
     selectedAmount?: number;
@@ -22,6 +22,7 @@ function reducer(state: State, action: Action) {
 
 interface AmountSelectorProps {
     onChange?: ((type: number | undefined) => void);
+    step?: number;
 }
 
 export const AmountSelector: React.FunctionComponent<AmountSelectorProps> = (props) => {
@@ -34,6 +35,7 @@ export const AmountSelector: React.FunctionComponent<AmountSelectorProps> = (pro
 
         const value =
             Number.isNaN(event.currentTarget.valueAsNumber)
+            || event.currentTarget.valueAsNumber <= 0
                 ? undefined
                 : event.currentTarget.valueAsNumber;
 
@@ -44,5 +46,5 @@ export const AmountSelector: React.FunctionComponent<AmountSelectorProps> = (pro
         dispatch({type: 'selectType', value: value});
     };
 
-    return (<input value={state.selectedAmount} type="number" onChange={selectAmount}></input>)
+    return (<input value={state.selectedAmount} min={0} step={props.step} type="number" onChange={selectAmount}></input>)
 };
