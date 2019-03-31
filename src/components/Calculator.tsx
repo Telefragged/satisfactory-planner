@@ -17,7 +17,7 @@ type CalculateResult = {
 }
 
 type NonSharedNode = {
-    kind: 'nonShared'
+    kind: 'nonShared';
     type: OutputType;
     numManufacturers: number;
     overclock?: number;
