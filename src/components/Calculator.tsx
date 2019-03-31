@@ -215,7 +215,7 @@ export class Calculator extends React.Component<CalculatorProps, {}> {
             {sharedPrintable.length > 0 ? <p>Shared values</p> : null}
             {sharedPrintable.map(node => renderNode(node))}
             <p>Producer statistics:</p>
-            {_.map(assemblerCounts, (count, producer) => <p>{count} {producer}(s)</p>)}
+            {_.map(assemblerCounts, (count, producer) => <p>{_.round(count, 3)} {producer}(s)</p>)}
         </>
     }
 }
