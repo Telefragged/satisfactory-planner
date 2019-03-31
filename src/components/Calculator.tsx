@@ -41,7 +41,7 @@ function calculateResults(type: OutputType, amount: number): CalculateResult[] {
     return [{ type, producerInfo }].concat(children);
 }
 
-function getSharedResults(results: CalculateResult[]) {
+function getSharedResults(results: CalculateResult[]): { sharedResults: CalculateResult[], sharedButUnique: CalculateResult[] } {
     const shared = _.pickBy(
         _.countBy(results, x => x.type.name),
         (v, _) => v >= 2);
@@ -55,7 +55,26 @@ function getSharedResults(results: CalculateResult[]) {
                     return { ...acc, producerInfo };
                 }));
 
-    return sharedResults;
+    const sharedButUnique =
+        sharedResults.reduce<CalculateResult[]>((acc, cur) => {
+            const sharedInputTypes =
+                sharedResults
+                    .filter(result => {
+                        const type = cur.type.inputTypes.find(t => t.type.name === result.type.name);
+                        if (!type) {
+                            return false;
+                        }
+                        const inputAmount = type.amount * (cur.type.productionRate / cur.type.outputAmount) * cur.producerInfo.amount * cur.producerInfo.overclock;
+                        console.log(result.type.name, inputAmount);
+                        return inputAmount === (result.producerInfo.amount * result.producerInfo.overclock * result.type.productionRate);
+                    });
+
+            return acc.concat(sharedInputTypes);
+        }, []);
+
+    console.log("UNIQUE!!!", sharedButUnique);
+
+    return { sharedResults, sharedButUnique };
 }
 
 function applySettings(result: CalculateResult, settings: CalculatorSettings): [CalculateResult, number | undefined] {
@@ -138,7 +157,7 @@ export class Calculator extends React.Component<CalculatorProps, {}> {
 
         const results = calculateResults(selectedType, amount)
 
-        const sharedResults = getSharedResults(results);
+        const { sharedResults, sharedButUnique } = getSharedResults(results);
 
         const combinedResults = _.differenceBy(results, sharedResults, result => result.type.name).concat(sharedResults);
 
@@ -157,7 +176,8 @@ export class Calculator extends React.Component<CalculatorProps, {}> {
         const power =
             optimizedResult.reduce((acc, cur) =>
                 acc
-                + deduceProducer(cur.type).powerConsumption * (cur.producerInfo.overclock**1.6) * cur.producerInfo.amount, 0);
+                + deduceProducer(cur.type).powerConsumption * (cur.producerInfo.overclock ** 1.6) * cur.producerInfo.amount,
+                0);
 
         const [sharedOptimizedResult] =
             sharedResults.reduce(([acc, _numCores], cur) => {
@@ -165,15 +185,17 @@ export class Calculator extends React.Component<CalculatorProps, {}> {
 
                 return [acc.concat(newResult),
                     undefined] as [CalculateResult[], number | undefined];
-            }, [[], 0] as [CalculateResult[], number | undefined])
+            }, [[], 0] as [CalculateResult[], number | undefined]);
 
-        const sharedPrintable = sharedOptimizedResult.map(result => {
-            return calculateOutput(
-                result.type,
-                result.type.productionRate * result.producerInfo.overclock * result.producerInfo.amount,
-                sharedOptimizedResult,
-                _.differenceBy(sharedOptimizedResult, [result], r => r.type.name))
-        });
+        const sharedPrintable =
+            _.differenceBy(sharedOptimizedResult, sharedButUnique, result => result.type.name)
+                .map(result => {
+                    return calculateOutput(
+                        result.type,
+                        result.type.productionRate * result.producerInfo.overclock * result.producerInfo.amount,
+                        sharedOptimizedResult,
+                        _.differenceBy(sharedOptimizedResult, sharedButUnique.concat(result), r => r.type.name))
+                });
 
         const assemblerCounts = optimizedResult.reduce((acc, cur) => {
             const producerName = deduceProducer(cur.type).name;
@@ -184,7 +206,7 @@ export class Calculator extends React.Component<CalculatorProps, {}> {
             acc[producerName] = producerCount + currentCount;
 
             return acc;
-        }, {} as { [key: string]: number })
+        }, {} as { [key: string]: number });
 
         return <>
             {renderNode(outputNode)}
