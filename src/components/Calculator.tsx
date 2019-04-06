@@ -34,7 +34,10 @@ type SharedNode = {
 type Node = NonSharedNode | SharedNode;
 
 function calculateResults(type: OutputType, amount: number): CalculateResult[] {
-    const children = type.inputTypes.flatMap(t => calculateResults(t.type, (t.amount / type.outputAmount) * amount));
+    const children = 
+        type.inputTypes 
+            ? type.inputTypes.flatMap(t => calculateResults(t.type, (t.amount / type.outputAmount) * amount))
+            : [];
 
     const producerInfo = { overclock: 1, amount: amount / type.productionRate };
 
@@ -60,7 +63,10 @@ function getSharedResults(results: CalculateResult[]): { sharedResults: Calculat
             const sharedInputTypes =
                 sharedResults
                     .filter(result => {
-                        const type = cur.type.inputTypes.find(t => t.type.name === result.type.name);
+                        const type = 
+                            cur.type.inputTypes 
+                                ? cur.type.inputTypes.find(t => t.type.name === result.type.name)
+                                : undefined;
                         if (!type) {
                             return false;
                         }
@@ -103,7 +109,10 @@ function applySettings(result: CalculateResult, settings: CalculatorSettings): [
 }
 
 function calculateOutput(type: OutputType, amount: number, results: CalculateResult[], sharedResults: CalculateResult[]): Node {
-    const childNodes = type.inputTypes.map(x => calculateOutput(x.type, (x.amount / type.outputAmount) * amount, results, sharedResults));
+    const childNodes =
+     type.inputTypes
+        ? type.inputTypes.map(x => calculateOutput(x.type, (x.amount / type.outputAmount) * amount, results, sharedResults))
+        : [];
 
     const sharedResult = sharedResults.find(result => result.type.name === type.name);
 

@@ -18,7 +18,8 @@ export type OutputType = {
     name: string;
     productionRate: number;
     outputAmount: number;
-    inputTypes: { type: OutputType, amount: number }[];
+    inputTypes?: { type: OutputType, amount: number }[];
+    alternateRecipes?: {type: OutputType, amount: number }[][];
 }
 
 export const deduceProducer = (type: OutputType): Producer => {
@@ -47,57 +48,51 @@ export const deduceProducer = (type: OutputType): Producer => {
             return foundry;
     }
 
+    if(!type.inputTypes || type.inputTypes.length < 2) {
+        return constructor;
+    }
+
     if (type.inputTypes.length >= 3) {
         return manufacturer;
     }
     
-    if (type.inputTypes.length === 2) {
-        return assembler
-    }
-
-    return constructor;
+    return assembler
 }
 
 const ironOre: OutputType = {
     name: "Iron Ore",
     productionRate: 60,
     outputAmount: 1,
-    inputTypes: []
 }
 
 const copperOre: OutputType = {
     name: "Copper Ore",
     productionRate: 60,
     outputAmount: 1,
-    inputTypes: []
 }
 
 const limestone: OutputType = {
     name: "Limestone",
     productionRate: 60,
     outputAmount: 1,
-    inputTypes: []
 }
 
 const coal: OutputType = {
     name: "Coal",
     productionRate: 60,
     outputAmount: 1,
-    inputTypes: []
 }
 
 const crudeOil: OutputType = {
     name: "Crude Oil",
     productionRate: 60,
     outputAmount: 1,
-    inputTypes: []
 }
 
 const cateriumOre: OutputType = {
     name: "Caterium Ore",
     productionRate: 60,
     outputAmount: 1,
-    inputTypes: []
 }
 
 const ironIngot: OutputType = {
