@@ -34,12 +34,12 @@ type SharedNode = {
 type Node = NonSharedNode | SharedNode;
 
 function calculateResults(type: OutputType, amount: number): CalculateResult[] {
-    const children = 
-        type.inputTypes 
-            ? type.inputTypes.flatMap(t => calculateResults(t.type, (t.amount / type.outputAmount) * amount))
+    const children =
+        type.selectedRecipe.inputTypes
+            ? type.selectedRecipe.inputTypes.flatMap(t => calculateResults(t.type, (t.amount / type.selectedRecipe.outputAmount) * amount))
             : [];
 
-    const producerInfo = { overclock: 1, amount: amount / type.productionRate };
+    const producerInfo = { overclock: 1, amount: amount / type.selectedRecipe.productionRate };
 
     return [{ type, producerInfo }].concat(children);
 }
@@ -63,15 +63,15 @@ function getSharedResults(results: CalculateResult[]): { sharedResults: Calculat
             const sharedInputTypes =
                 sharedResults
                     .filter(result => {
-                        const type = 
-                            cur.type.inputTypes 
-                                ? cur.type.inputTypes.find(t => t.type.name === result.type.name)
+                        const type =
+                            cur.type.selectedRecipe.inputTypes
+                                ? cur.type.selectedRecipe.inputTypes.find(t => t.type.name === result.type.name)
                                 : undefined;
                         if (!type) {
                             return false;
                         }
-                        const inputAmount = type.amount * (cur.type.productionRate / cur.type.outputAmount) * cur.producerInfo.amount * cur.producerInfo.overclock;
-                        return inputAmount === (result.producerInfo.amount * result.producerInfo.overclock * result.type.productionRate);
+                        const inputAmount = type.amount * (cur.type.selectedRecipe.productionRate / cur.type.selectedRecipe.outputAmount) * cur.producerInfo.amount * cur.producerInfo.overclock;
+                        return inputAmount === (result.producerInfo.amount * result.producerInfo.overclock * result.type.selectedRecipe.productionRate);
                     });
 
             return acc.concat(sharedInputTypes);
@@ -110,15 +110,15 @@ function applySettings(result: CalculateResult, settings: CalculatorSettings): [
 
 function calculateOutput(type: OutputType, amount: number, results: CalculateResult[], sharedResults: CalculateResult[]): Node {
     const childNodes =
-     type.inputTypes
-        ? type.inputTypes.map(x => calculateOutput(x.type, (x.amount / type.outputAmount) * amount, results, sharedResults))
-        : [];
+        type.selectedRecipe.inputTypes
+            ? type.selectedRecipe.inputTypes.map(x => calculateOutput(x.type, (x.amount / type.selectedRecipe.outputAmount) * amount, results, sharedResults))
+            : [];
 
     const sharedResult = sharedResults.find(result => result.type.name === type.name);
 
     if (sharedResult) {
         const percentOfTotal =
-            amount / (sharedResult.type.productionRate * sharedResult.producerInfo.overclock * sharedResult.producerInfo.amount)
+            amount / (sharedResult.type.selectedRecipe.productionRate * sharedResult.producerInfo.overclock * sharedResult.producerInfo.amount)
 
         const adjustedOutput = amount;
 
@@ -145,7 +145,7 @@ const renderNode = (node: Node, depth?: number): React.ReactNode => {
     const realDepth = depth || 0;
     switch (node.kind) {
         case 'nonShared':
-            const outputAmount = node.numManufacturers * node.type.productionRate * (node.overclock ? node.overclock : 1);
+            const outputAmount = node.numManufacturers * node.type.selectedRecipe.productionRate * (node.overclock ? node.overclock : 1);
             return <>
                 <p style={{ paddingLeft: realDepth * 20 }}>
                     {node.type.name}: {_.round(node.numManufacturers, 3)} {deduceProducer(node.type).name}(s) {_.round(outputAmount, 3)}/min {node.overclock ? `${_.round(node.overclock * 100, 3)}% overclock` : ""}
@@ -198,7 +198,7 @@ export class Calculator extends React.Component<CalculatorProps, {}> {
                 .map(result => {
                     return calculateOutput(
                         result.type,
-                        result.type.productionRate * result.producerInfo.overclock * result.producerInfo.amount,
+                        result.type.selectedRecipe.productionRate * result.producerInfo.overclock * result.producerInfo.amount,
                         sharedOptimizedResult,
                         _.differenceBy(sharedOptimizedResult, sharedButUnique.concat(result), r => r.type.name))
                 });
