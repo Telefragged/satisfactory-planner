@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-export type Producer = {
+type Producer = {
     name: string;
     powerConsumption: number;
 }
@@ -14,24 +14,32 @@ const assembler: Producer = { name: "Assembler", powerConsumption: 15 }
 const manufacturer: Producer = { name: "Manufacturer", powerConsumption: 55 }
 const oilRefinery: Producer = { name: "Oil Refinery", powerConsumption: 50 }
 
+type Recipe = {
+    type: OutputType,
+    amount: number
+}
+
 export type OutputType = {
     name: string;
     productionRate: number;
     outputAmount: number;
-    inputTypes?: { type: OutputType, amount: number }[];
-    alternateRecipes?: {type: OutputType, amount: number }[][];
+    inputTypes?: Recipe[];
+    recipes?: { inputTypes: Recipe[], outputAmount: number, productionRate: number }[];
 }
 
 export const deduceProducer = (type: OutputType): Producer => {
-    switch(type.name) {
+    switch (type.name) {
         case 'Iron Ore':
         case 'Copper Ore':
         case 'Limestone':
         case 'Coal':
         case 'Caterium Ore':
             return drill;
-        
+
         case 'Iron Ingot':
+            if (type.inputTypes && type.inputTypes.length > 1) {
+                return foundry;
+            }
         case 'Copper Ingot':
         case 'Caterium Ingot':
             return smelter;
@@ -46,17 +54,18 @@ export const deduceProducer = (type: OutputType): Producer => {
 
         case 'Steel Ingot':
             return foundry;
-    }
 
-    if(!type.inputTypes || type.inputTypes.length < 2) {
-        return constructor;
-    }
+        default:
+            if (!type.inputTypes || type.inputTypes.length < 2) {
+                return constructor;
+            }
 
-    if (type.inputTypes.length >= 3) {
-        return manufacturer;
+            if (type.inputTypes.length >= 3) {
+                return manufacturer;
+            }
+
+            return assembler
     }
-    
-    return assembler
 }
 
 const ironOre: OutputType = {
@@ -99,42 +108,42 @@ const ironIngot: OutputType = {
     name: "Iron Ingot",
     productionRate: 30,
     outputAmount: 1,
-    inputTypes: [{type: ironOre, amount: 1}]
+    inputTypes: [{ type: ironOre, amount: 1 }]
 }
 
 const ironPlate: OutputType = {
     name: "Iron Plate",
     productionRate: 15,
     outputAmount: 1,
-    inputTypes: [{type: ironIngot, amount: 2}]
+    inputTypes: [{ type: ironIngot, amount: 2 }]
 }
 
 const ironRod: OutputType = {
     name: "Iron Rod",
     productionRate: 15,
     outputAmount: 1,
-    inputTypes: [{type: ironIngot, amount: 1}]
+    inputTypes: [{ type: ironIngot, amount: 1 }]
 }
 
 const copperIngot: OutputType = {
     name: "Copper Ingot",
     productionRate: 30,
     outputAmount: 1,
-    inputTypes: [{type: copperOre, amount: 1}]
+    inputTypes: [{ type: copperOre, amount: 1 }]
 }
 
 const wire: OutputType = {
     name: "Wire",
     productionRate: 45,
     outputAmount: 3,
-    inputTypes: [{type: copperIngot, amount: 1}]
+    inputTypes: [{ type: copperIngot, amount: 1 }]
 }
 
 const cable: OutputType = {
     name: "Cable",
     productionRate: 15,
     outputAmount: 1,
-    inputTypes: [{type: wire, amount: 2}]
+    inputTypes: [{ type: wire, amount: 2 }]
 }
 
 
@@ -142,14 +151,14 @@ const concrete: OutputType = {
     name: "Concrete",
     productionRate: 15,
     outputAmount: 1,
-    inputTypes: [{type: limestone, amount: 3}]
+    inputTypes: [{ type: limestone, amount: 3 }]
 }
 
 const screw: OutputType = {
     name: "Screw",
     productionRate: 90,
     outputAmount: 6,
-    inputTypes: [{type: ironRod, amount: 1}]
+    inputTypes: [{ type: ironRod, amount: 1 }]
 }
 
 const reinforcedIronPlate: OutputType = {
@@ -157,8 +166,8 @@ const reinforcedIronPlate: OutputType = {
     productionRate: 5,
     outputAmount: 1,
     inputTypes: [
-        {type: screw, amount: 24},
-        {type: ironPlate, amount: 4},
+        { type: screw, amount: 24 },
+        { type: ironPlate, amount: 4 },
     ]
 }
 
@@ -167,8 +176,8 @@ const rotor: OutputType = {
     productionRate: 6,
     outputAmount: 1,
     inputTypes: [
-        {type: screw, amount: 22},
-        {type: ironRod, amount: 3},
+        { type: screw, amount: 22 },
+        { type: ironRod, amount: 3 },
     ]
 }
 
@@ -177,8 +186,8 @@ const modularFrame: OutputType = {
     productionRate: 5,
     outputAmount: 1,
     inputTypes: [
-        {type: reinforcedIronPlate, amount: 3},
-        {type: ironRod, amount: 6},
+        { type: reinforcedIronPlate, amount: 3 },
+        { type: ironRod, amount: 6 },
     ]
 }
 
@@ -187,8 +196,8 @@ const steelIngot: OutputType = {
     productionRate: 30,
     outputAmount: 2,
     inputTypes: [
-        {type: ironOre, amount: 3},
-        {type: coal, amount: 3}
+        { type: ironOre, amount: 3 },
+        { type: coal, amount: 3 }
     ]
 }
 
@@ -197,7 +206,7 @@ const steelBeam: OutputType = {
     productionRate: 10,
     outputAmount: 1,
     inputTypes: [
-        {type: steelIngot, amount: 3},
+        { type: steelIngot, amount: 3 },
     ]
 }
 const steelPipe: OutputType = {
@@ -205,7 +214,7 @@ const steelPipe: OutputType = {
     productionRate: 15,
     outputAmount: 1,
     inputTypes: [
-        {type: steelIngot, amount: 1},
+        { type: steelIngot, amount: 1 },
     ]
 }
 
@@ -214,8 +223,8 @@ const encasedIndustrialBeam: OutputType = {
     productionRate: 4,
     outputAmount: 1,
     inputTypes: [
-        {type: steelBeam, amount: 4},
-        {type: concrete, amount: 5}
+        { type: steelBeam, amount: 4 },
+        { type: concrete, amount: 5 }
     ]
 }
 
@@ -224,8 +233,8 @@ const stator: OutputType = {
     productionRate: 6,
     outputAmount: 1,
     inputTypes: [
-        {type: steelPipe, amount: 3},
-        {type: wire, amount: 10}
+        { type: steelPipe, amount: 3 },
+        { type: wire, amount: 10 }
     ]
 }
 
@@ -234,8 +243,8 @@ const motor: OutputType = {
     productionRate: 5,
     outputAmount: 1,
     inputTypes: [
-        {type: rotor, amount: 2},
-        {type: stator, amount: 2}
+        { type: rotor, amount: 2 },
+        { type: stator, amount: 2 }
     ]
 }
 
@@ -244,10 +253,10 @@ const heavyModularFrame: OutputType = {
     productionRate: 2,
     outputAmount: 1,
     inputTypes: [
-        {type: modularFrame, amount: 5},
-        {type: steelPipe, amount: 15},
-        {type: encasedIndustrialBeam, amount: 5},
-        {type: screw, amount: 90}
+        { type: modularFrame, amount: 5 },
+        { type: steelPipe, amount: 15 },
+        { type: encasedIndustrialBeam, amount: 5 },
+        { type: screw, amount: 90 }
     ]
 }
 
@@ -255,7 +264,7 @@ const cateriurmIngot: OutputType = {
     name: "Caterium Ingot",
     productionRate: 15,
     outputAmount: 1,
-    inputTypes: [{type: cateriumOre, amount: 4}]
+    inputTypes: [{ type: cateriumOre, amount: 4 }]
 
 }
 
@@ -263,28 +272,28 @@ const quickWire: OutputType = {
     name: "Quickwire",
     productionRate: 15,
     outputAmount: 4,
-    inputTypes: [{type: cateriurmIngot, amount: 1}]
+    inputTypes: [{ type: cateriurmIngot, amount: 1 }]
 }
 
 const plastic: OutputType = {
     name: "Plastic",
     productionRate: 22.5,
     outputAmount: 3,
-    inputTypes: [{type: crudeOil, amount: 4}]
+    inputTypes: [{ type: crudeOil, amount: 4 }]
 }
 
 const rubber: OutputType = {
     name: "Rubber",
     productionRate: 30,
     outputAmount: 4,
-    inputTypes: [{type: crudeOil, amount: 4}]
+    inputTypes: [{ type: crudeOil, amount: 4 }]
 }
 
 const fuel: OutputType = {
     name: "Fuel",
     productionRate: 37.5,
     outputAmount: 5,
-    inputTypes: [{type: crudeOil, amount: 8}]
+    inputTypes: [{ type: crudeOil, amount: 8 }]
 }
 
 const circuitBoard: OutputType = {
@@ -292,8 +301,8 @@ const circuitBoard: OutputType = {
     productionRate: 5,
     outputAmount: 1,
     inputTypes: [
-        {type: wire, amount: 12},
-        {type: plastic, amount: 6}
+        { type: wire, amount: 12 },
+        { type: plastic, amount: 6 }
     ]
 }
 
@@ -302,10 +311,10 @@ const computer: OutputType = {
     productionRate: 1.875,
     outputAmount: 1,
     inputTypes: [
-        {type: circuitBoard, amount: 5},
-        {type: cable, amount: 12},
-        {type: plastic, amount: 18},
-        {type: screw, amount: 60}
+        { type: circuitBoard, amount: 5 },
+        { type: cable, amount: 12 },
+        { type: plastic, amount: 18 },
+        { type: screw, amount: 60 }
     ]
 }
 
@@ -314,8 +323,8 @@ const aiLimiter: OutputType = {
     productionRate: 5,
     outputAmount: 1,
     inputTypes: [
-        {type: circuitBoard, amount: 1},
-        {type: quickWire, amount: 18}
+        { type: circuitBoard, amount: 1 },
+        { type: quickWire, amount: 18 }
     ]
 }
 
@@ -324,9 +333,9 @@ const highSpeedConnector: OutputType = {
     productionRate: 2.5,
     outputAmount: 1,
     inputTypes: [
-        {type: quickWire, amount: 40},
-        {type: cable, amount: 10},
-        {type: plastic, amount: 6},
+        { type: quickWire, amount: 40 },
+        { type: cable, amount: 10 },
+        { type: plastic, amount: 6 },
     ]
 }
 
@@ -336,13 +345,12 @@ const superComputer: OutputType = {
     productionRate: 1.875,
     outputAmount: 1,
     inputTypes: [
-        {type: computer, amount: 2},
-        {type: aiLimiter, amount: 2},
-        {type: plastic, amount: 21},
-        {type: highSpeedConnector, amount: 3}
+        { type: computer, amount: 2 },
+        { type: aiLimiter, amount: 2 },
+        { type: plastic, amount: 21 },
+        { type: highSpeedConnector, amount: 3 }
     ]
 }
-
 
 export const outputTypes: OutputType[] = [
     ironOre,
@@ -377,9 +385,20 @@ export const outputTypes: OutputType[] = [
     steelBeam,
     encasedIndustrialBeam,
     heavyModularFrame
-].sort((a, b) =>
-    a.name < b.name
-     ? -1
-     : b.name < a.name
-        ? 1
-        : 0)
+].map(t =>
+    ({
+        ...t,
+        recipes: t.inputTypes
+            ? [{
+                inputTypes: t.inputTypes,
+                outputAmount: t.outputAmount,
+                productionRate: t.productionRate
+            }].concat(t.recipes || [])
+            : t.recipes
+    }))
+    .sort((a, b) =>
+        a.name < b.name
+            ? -1
+            : b.name < a.name
+                ? 1
+                : 0);
