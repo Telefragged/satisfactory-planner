@@ -1,42 +1,26 @@
 import * as React from 'react';
 import _ from 'lodash';
+import zimaReducer from '../zimaReducer';
 
 type State = {
     maxOverclock: number;
     overclockEnabled: boolean;
 }
 
-type SelectMaxOverclockAction = {
-    type: 'selectMaxOverclock';
-    value: number;
-}
-
-type ToggleOverclockAction = {
-    type: 'toggleOverclock';
-}
-
-type Action = SelectMaxOverclockAction | ToggleOverclockAction;
-
-function reducer(state: State, action: Action) {
-    switch (action.type) {
-        case 'selectMaxOverclock':
-            return { ...state, maxOverclock: action.value };
-        case 'toggleOverclock':
-            return { ...state, overclockEnabled: !state.overclockEnabled };
-        default:
-            return state;
-    }
-}
-
 interface OverclockSelectorProps {
     onChange?: ((type: number | undefined) => void);
+}
+
+const actions = {
+    selectMaxOverclock: (state: State, maxOverclock: number) => ({...state, maxOverclock}),
+    toggleOverclock: (state: State) => ({...state, overclockEnabled: !state.overclockEnabled})
 }
 
 export const OverclockSelector: React.FunctionComponent<OverclockSelectorProps> = (props) => {
 
     const { onChange } = props;
 
-    const [state, dispatch] = React.useReducer(reducer, { maxOverclock: 1, overclockEnabled: false });
+    const [state, dispatch] = zimaReducer(actions, { maxOverclock: 1, overclockEnabled: false });
 
     const selectAmount = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value =
@@ -49,7 +33,7 @@ export const OverclockSelector: React.FunctionComponent<OverclockSelectorProps> 
             onChange(value);
         }
 
-        dispatch({ type: 'selectMaxOverclock', value: value });
+        dispatch.selectMaxOverclock(value);
     };
 
     const toggleOverclocking = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -64,7 +48,7 @@ export const OverclockSelector: React.FunctionComponent<OverclockSelectorProps> 
             }
         }
 
-        dispatch({ type: 'toggleOverclock' });
+        dispatch.toggleOverclock();
     }
 
     return (
