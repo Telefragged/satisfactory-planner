@@ -2,13 +2,19 @@ import { useReducer } from 'react';
 
 type GetArguments<F extends Function> = F extends (...args: infer A) => any ? A : never;
 
+type CheckDispatchSignature<T, S> = T extends (state: S, ...args: any[]) => S ? T : never;
+
 type WithDispatchSignature<T, S> = { [P in keyof T]: T[P] extends (state: S, ...args: infer A) => unknown ? (...args: A) => void : never; }
 
 type ActionReducer<S> = {
     reduce: (state: S) => S
 }
 
-function zimaReducer<S, T extends { [P in keyof T]: T[P] extends Function ? T[P] : never }>(obj: T, initialState: S): [S, WithDispatchSignature<T, S>] {
+function zimaReducer<
+    S,
+    T extends {
+        [P in keyof T]: CheckDispatchSignature<T[P], S>
+    }>(obj: T, initialState: S): [S, WithDispatchSignature<T, S>] {
     const reducerFunction = (state: S, action: ActionReducer<S>) => action.reduce(state);
 
     const [state, dispatch] = useReducer(reducerFunction, initialState);
