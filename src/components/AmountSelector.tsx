@@ -1,24 +1,5 @@
 import * as React from 'react';
 import _ from 'lodash';
-import { OutputType } from '../types';
-
-interface State {
-    selectedAmount?: number;
-}
-
-interface Action {
-    type: 'selectType';
-    value?: number;
-}
-
-function reducer(state: State, action: Action) {
-    switch (action.type) {
-        case 'selectType':
-            return {...state, selectedType: action.value as OutputType | undefined};
-        default:
-            return state;
-    }
-}
 
 interface AmountSelectorProps {
     onChange?: ((type: number | undefined) => void);
@@ -29,7 +10,7 @@ export const AmountSelector: React.FunctionComponent<AmountSelectorProps> = (pro
 
     const {onChange} = props;
 
-    const [state, dispatch] = React.useReducer(reducer, {});
+    const [selectedAmount, setSelectedAmount] = React.useState(undefined as number | undefined)
 
     const selectAmount = (event: React.ChangeEvent<HTMLInputElement>) => {
 
@@ -43,8 +24,8 @@ export const AmountSelector: React.FunctionComponent<AmountSelectorProps> = (pro
             onChange(value);
         }
 
-        dispatch({type: 'selectType', value: value});
+        setSelectedAmount(value);
     };
 
-    return (<input value={state.selectedAmount} min={0} step={props.step} type="number" onChange={selectAmount}></input>)
+    return (<input value={selectedAmount} min={0} step={props.step} type="number" onChange={selectAmount}></input>)
 };
