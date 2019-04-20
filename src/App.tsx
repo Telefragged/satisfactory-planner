@@ -1,62 +1,49 @@
 import React from 'react';
 import './App.css';
-import { OutputType } from './types';
+import { OutputType, outputTypes } from './types';
 import { Calculator } from './components/Calculator';
 import { TypeSelector } from './components/TypeSelector';
 import { AmountSelector } from './components/AmountSelector';
 import { OverclockSelector } from './components/OverclockSelector';
+import { RecipeSelector } from './components/RecipeSelector';
+import zimaReducer from './zimaReducer';
 
 type State = {
     selectedType?: OutputType;
     amount?: number;
     maxOverclock?: number;
+    outputTypes: OutputType[];
 };
 
-type SelectTypeAction = {
-    type: 'selectType';
-    value: OutputType | undefined;
-}
-
-type SelectAmountAction = {
-    type: 'selectAmount';
-    value: number | undefined;
-}
-
-type SelectOverclockAction = {
-    type: 'selectOverclock';
-    value: number | undefined;
-}
-
-type Action = SelectTypeAction | SelectAmountAction | SelectOverclockAction;
-
-function reducer(state: State, action: Action) {
-    switch (action.type) {
-        case 'selectType':
-            return { ...state, selectedType: action.value };
-        case 'selectAmount':
-            return { ...state, amount: action.value };
-        case 'selectOverclock':
-            return { ...state, maxOverclock: action.value }
-        default:
-            return state;
-    }
+const actions = {
+    selectType: (state: State, selectedType?: OutputType): State => ({ ...state, selectedType }),
+    selectAmount: (state: State, amount?: number): State => ({ ...state, amount }),
+    selectOverclock: (state: State, maxOverclock?: number): State => ({ ...state, maxOverclock }),
+    changeOutputTypes: (state: State, outputTypes: OutputType[]): State => (console.log(outputTypes), {
+        ...state,
+        outputTypes,
+        selectedType: state.selectedType ? outputTypes.find(t => t.name === state.selectedType!.name) : undefined
+    })
 }
 
 const App = ({ }) => {
-    const [state, dispatch] = React.useReducer(reducer, {});
+    const [state, dispatch] = zimaReducer(actions, { outputTypes } as State);
 
     return (
         <div className="App">
             <div style={{ display: 'inline-block' }}>
-                <TypeSelector onChange={type => dispatch({ type: 'selectType', value: type })} />
+                <TypeSelector
+                    outputTypes={state.outputTypes}
+                    onChange={dispatch.selectType} />
                 <AmountSelector
-                    onChange={amount => dispatch({ type: 'selectAmount', value: amount })}
+                    onChange={dispatch.selectAmount}
                     step={state.selectedType ? state.selectedType.selectedRecipe.productionRate : 1} />
-                <OverclockSelector onChange={maxOverclock => dispatch({ type: 'selectOverclock', value: maxOverclock })} />
+                <OverclockSelector onChange={dispatch.selectOverclock} />
             </div>
             {state.selectedType !== undefined && state.amount !== undefined
                 ? <Calculator selectedType={state.selectedType} amount={state.amount} maxOverclock={state.maxOverclock} />
                 : <p>Select a type pls</p>}
+            <RecipeSelector onChangeRecipe={dispatch.changeOutputTypes}></RecipeSelector>
         </div>
     );
 }

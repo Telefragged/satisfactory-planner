@@ -14,7 +14,7 @@ const assembler: Producer = { name: "Assembler", powerConsumption: 15 }
 const manufacturer: Producer = { name: "Manufacturer", powerConsumption: 55 }
 const oilRefinery: Producer = { name: "Oil Refinery", powerConsumption: 50 }
 
-type Recipe = {
+export type Recipe = {
     productionRate: number;
     outputAmount: number;
     inputTypes?: {
@@ -124,7 +124,16 @@ const ironIngot: OutputType = {
         outputAmount: 1,
         productionRate: 30,
         inputTypes: [{ type: ironOre, amount: 1 }]
-    }
+    }, recipes: [
+        {
+            outputAmount: 3,
+            productionRate: 45,
+            inputTypes: [
+                { type: ironOre, amount: 1 },
+                { type: copperOre, amount: 1 }
+            ]
+        }
+    ]
 }
 
 const ironPlate: OutputType = {
@@ -154,12 +163,42 @@ const copperIngot: OutputType = {
     }
 }
 
+const cateriumIngot: OutputType = {
+    name: "Caterium Ingot",
+    selectedRecipe: {
+        productionRate: 15,
+        outputAmount: 1,
+        inputTypes: [{ type: cateriumOre, amount: 4 }]
+    }
+}
+
 const wire: OutputType = {
     name: "Wire",
     selectedRecipe: {
         productionRate: 45,
         outputAmount: 3,
         inputTypes: [{ type: copperIngot, amount: 1 }]
+    },
+    recipes: [
+        {
+            productionRate: 67.5,
+            outputAmount: 9,
+            inputTypes: [{ type: ironIngot, amount: 2 }]
+        },
+        {
+            productionRate: 67.5,
+            outputAmount: 9,
+            inputTypes: [{ type: cateriumIngot, amount: 1 }]
+        }
+    ]
+}
+
+const rubber: OutputType = {
+    name: "Rubber",
+    selectedRecipe: {
+        productionRate: 30,
+        outputAmount: 4,
+        inputTypes: [{ type: crudeOil, amount: 4 }]
     }
 }
 
@@ -169,7 +208,17 @@ const cable: OutputType = {
         productionRate: 15,
         outputAmount: 1,
         inputTypes: [{ type: wire, amount: 2 }]
-    }
+    },
+    recipes: [
+        {
+            productionRate: 37.5,
+            outputAmount: 5,
+            inputTypes: [
+                { type: wire, amount: 3 },
+                { type: rubber, amount: 2 }
+            ]
+        }
+    ]
 }
 
 
@@ -188,7 +237,14 @@ const screw: OutputType = {
         productionRate: 90,
         outputAmount: 6,
         inputTypes: [{ type: ironRod, amount: 1 }]
-    }
+    },
+    recipes: [
+        {
+            productionRate: 90,
+            outputAmount: 12,
+            inputTypes: [{ type: ironIngot, amount: 2 }]
+        }
+    ]
 }
 
 const reinforcedIronPlate: OutputType = {
@@ -199,6 +255,57 @@ const reinforcedIronPlate: OutputType = {
         inputTypes: [
             { type: screw, amount: 24 },
             { type: ironPlate, amount: 4 },
+        ]
+    },
+    recipes: [
+        {
+            productionRate: 7.5,
+            outputAmount: 3,
+            inputTypes: [
+                { type: screw, amount: 24 },
+                { type: ironPlate, amount: 10 }
+            ]
+        },
+        {
+            productionRate: 7.5,
+            outputAmount: 3,
+            inputTypes: [
+                { type: ironPlate, amount: 6 },
+                { type: wire, amount: 30 }
+            ]
+        }
+    ]
+}
+
+const steelIngot: OutputType = {
+    name: "Steel Ingot",
+    selectedRecipe: {
+        productionRate: 30,
+        outputAmount: 2,
+        inputTypes: [
+            { type: ironOre, amount: 3 },
+            { type: coal, amount: 3 }
+        ]
+    },
+    recipes: [
+        {
+            productionRate: 45,
+            outputAmount: 6,
+            inputTypes: [
+                { type: ironIngot, amount: 3 },
+                { type: coal, amount: 6 }
+            ]
+        }
+    ]
+}
+
+const steelPipe: OutputType = {
+    name: "Steel Pipe",
+    selectedRecipe: {
+        productionRate: 15,
+        outputAmount: 1,
+        inputTypes: [
+            { type: steelIngot, amount: 1 },
         ]
     }
 }
@@ -212,7 +319,17 @@ const rotor: OutputType = {
             { type: screw, amount: 22 },
             { type: ironRod, amount: 3 },
         ]
-    }
+    },
+    recipes: [
+        {
+            productionRate: 9,
+            outputAmount: 3,
+            inputTypes: [
+                { type: steelPipe, amount: 6 },
+                { type: wire, amount: 20 }
+            ]
+        }
+    ]
 }
 
 const modularFrame: OutputType = {
@@ -224,19 +341,17 @@ const modularFrame: OutputType = {
             { type: reinforcedIronPlate, amount: 3 },
             { type: ironRod, amount: 6 },
         ]
-    }
-}
-
-const steelIngot: OutputType = {
-    name: "Steel Ingot",
-    selectedRecipe: {
-        productionRate: 30,
-        outputAmount: 2,
-        inputTypes: [
-            { type: ironOre, amount: 3 },
-            { type: coal, amount: 3 }
-        ]
-    }
+    },
+    recipes: [
+        {
+            productionRate: 6,
+            outputAmount: 3,
+            inputTypes: [
+                { type: reinforcedIronPlate, amount: 6 },
+                { type: steelPipe, amount: 6 }
+            ]
+        }
+    ]
 }
 
 const steelBeam: OutputType = {
@@ -246,16 +361,6 @@ const steelBeam: OutputType = {
         outputAmount: 1,
         inputTypes: [
             { type: steelIngot, amount: 3 },
-        ]
-    }
-}
-const steelPipe: OutputType = {
-    name: "Steel Pipe",
-    selectedRecipe: {
-        productionRate: 15,
-        outputAmount: 1,
-        inputTypes: [
-            { type: steelIngot, amount: 1 },
         ]
     }
 }
@@ -269,7 +374,36 @@ const encasedIndustrialBeam: OutputType = {
             { type: steelBeam, amount: 4 },
             { type: concrete, amount: 5 }
         ]
-    }
+    },
+    recipes: [
+        {
+            productionRate: 6,
+            outputAmount: 3,
+            inputTypes: [
+                { type: steelPipe, amount: 18 },
+                { type: concrete, amount: 10 }
+            ]
+        }
+    ]
+}
+
+const quickwire: OutputType = {
+    name: "Quickwire",
+    selectedRecipe: {
+        productionRate: 15,
+        outputAmount: 4,
+        inputTypes: [{ type: cateriumIngot, amount: 1 }]
+    },
+    recipes: [
+        {
+            productionRate: 90,
+            outputAmount: 12,
+            inputTypes: [
+                { type: cateriumIngot, amount: 1 },
+                { type: copperIngot, amount: 2 }
+            ]
+        }
+    ]
 }
 
 const stator: OutputType = {
@@ -281,7 +415,17 @@ const stator: OutputType = {
             { type: steelPipe, amount: 3 },
             { type: wire, amount: 10 }
         ]
-    }
+    },
+    recipes: [
+        {
+            productionRate: 9,
+            outputAmount: 3,
+            inputTypes: [
+                { type: steelPipe, amount: 6 },
+                { type: quickwire, amount: 25 }
+            ]
+        }
+    ]
 }
 
 const motor: OutputType = {
@@ -307,25 +451,19 @@ const heavyModularFrame: OutputType = {
             { type: encasedIndustrialBeam, amount: 5 },
             { type: screw, amount: 90 }
         ]
-    }
-}
-
-const cateriurmIngot: OutputType = {
-    name: "Caterium Ingot",
-    selectedRecipe: {
-        productionRate: 15,
-        outputAmount: 1,
-        inputTypes: [{ type: cateriumOre, amount: 4 }]
-    }
-}
-
-const quickWire: OutputType = {
-    name: "Quickwire",
-    selectedRecipe: {
-        productionRate: 15,
-        outputAmount: 4,
-        inputTypes: [{ type: cateriurmIngot, amount: 1 }]
-    }
+    },
+    recipes: [
+        {
+            productionRate: 2.8,
+            outputAmount: 3,
+            inputTypes: [
+                { type: modularFrame, amount: 8 },
+                { type: encasedIndustrialBeam, amount: 10 },
+                { type: steelPipe, amount: 36 },
+                { type: concrete, amount: 25 }
+            ]
+        }
+    ]
 }
 
 const plastic: OutputType = {
@@ -333,15 +471,6 @@ const plastic: OutputType = {
     selectedRecipe: {
         productionRate: 22.5,
         outputAmount: 3,
-        inputTypes: [{ type: crudeOil, amount: 4 }]
-    }
-}
-
-const rubber: OutputType = {
-    name: "Rubber",
-    selectedRecipe: {
-        productionRate: 30,
-        outputAmount: 4,
         inputTypes: [{ type: crudeOil, amount: 4 }]
     }
 }
@@ -364,7 +493,25 @@ const circuitBoard: OutputType = {
             { type: wire, amount: 12 },
             { type: plastic, amount: 6 }
         ]
-    }
+    },
+    recipes: [
+        {
+            productionRate: 7.5,
+            outputAmount: 3,
+            inputTypes: [
+                { type: rubber, amount: 16 },
+                { type: wire, amount: 24 }
+            ]
+        },
+        {
+            productionRate: 7.5,
+            outputAmount: 3,
+            inputTypes: [
+                { type: plastic, amount: 12 },
+                { type: quickwire, amount: 32 }
+            ]
+        }
+    ]
 }
 
 const computer: OutputType = {
@@ -378,7 +525,18 @@ const computer: OutputType = {
             { type: plastic, amount: 18 },
             { type: screw, amount: 60 }
         ]
-    }
+    },
+    recipes: [
+        {
+            productionRate: 2.8,
+            outputAmount: 3,
+            inputTypes: [
+                { type: circuitBoard, amount: 10 },
+                { type: quickwire, amount: 112 },
+                { type: rubber, amount: 48 }
+            ]
+        }
+    ]
 }
 
 const aiLimiter: OutputType = {
@@ -388,7 +546,7 @@ const aiLimiter: OutputType = {
         outputAmount: 1,
         inputTypes: [
             { type: circuitBoard, amount: 1 },
-            { type: quickWire, amount: 18 }
+            { type: quickwire, amount: 18 }
         ]
     }
 }
@@ -399,7 +557,7 @@ const highSpeedConnector: OutputType = {
         productionRate: 2.5,
         outputAmount: 1,
         inputTypes: [
-            { type: quickWire, amount: 40 },
+            { type: quickwire, amount: 40 },
             { type: cable, amount: 10 },
             { type: plastic, amount: 6 },
         ]
@@ -438,8 +596,8 @@ export const outputTypes: OutputType[] = [
     stator,
     motor,
     cateriumOre,
-    cateriurmIngot,
-    quickWire,
+    cateriumIngot,
+    quickwire,
     plastic,
     rubber,
     fuel,

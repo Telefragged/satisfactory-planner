@@ -1,6 +1,6 @@
 import * as React from 'react';
 import _ from 'lodash';
-import { OutputType, outputTypes } from '../types';
+import { OutputType } from '../types';
 
 interface State {
     selectedType?: OutputType;
@@ -21,12 +21,13 @@ function reducer(state: State, action: Action) {
 }
 
 interface TypeSelectorProps {
+    outputTypes: OutputType[],
     onChange?: ((type: OutputType | undefined) => void);
 }
 
 export const TypeSelector: React.FunctionComponent<TypeSelectorProps> = (props) => {
 
-    const {onChange} = props;
+    const {onChange, outputTypes} = props;
 
     const [state, dispatch] = React.useReducer(reducer, {});
 
