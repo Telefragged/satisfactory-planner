@@ -390,7 +390,7 @@ const encasedIndustrialBeam: OutputType = {
 const quickwire: OutputType = {
     name: "Quickwire",
     selectedRecipe: {
-        productionRate: 15,
+        productionRate: 60,
         outputAmount: 4,
         inputTypes: [{ type: cateriumIngot, amount: 1 }]
     },
@@ -528,7 +528,7 @@ const computer: OutputType = {
     },
     recipes: [
         {
-            productionRate: 2.8,
+            productionRate: 2.8125,
             outputAmount: 3,
             inputTypes: [
                 { type: circuitBoard, amount: 10 },
