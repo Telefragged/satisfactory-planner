@@ -21,7 +21,10 @@ function zimaReducer<
 
     const actionDispatcher: any = {};
 
-    for (const k of Reflect.ownKeys(obj)) {
+    for (const k in obj) {
+        if(!obj.hasOwnProperty(k)) {
+            continue;
+        }
         const reduceFn = (obj as any)[k] as T[keyof T];
         type arguments = GetArguments<typeof reduceFn>;
         actionDispatcher[k] = (...args: arguments) => {
