@@ -454,7 +454,7 @@ const heavyModularFrame: OutputType = {
     },
     recipes: [
         {
-            productionRate: 2.8,
+            productionRate: 2.8125,
             outputAmount: 3,
             inputTypes: [
                 { type: modularFrame, amount: 8 },
