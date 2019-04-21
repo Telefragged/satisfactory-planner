@@ -17,7 +17,7 @@ type State = {
 
 const actions = {
     selectType: (state: State, selectedType?: OutputType): State => ({ ...state, selectedType }),
-    selectAmount: (state: State, amount?: number): State => ({ ...state, amount }),
+    selectAmount: (state: State, amount: number): State => ({ ...state, amount: amount > 0 ? amount : undefined }),
     selectOverclock: (state: State, maxOverclock?: number): State => ({ ...state, maxOverclock }),
     changeOutputTypes: (state: State, outputTypes: OutputType[]): State => (console.log(outputTypes), {
         ...state,
