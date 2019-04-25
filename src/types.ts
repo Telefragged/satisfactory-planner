@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 type Producer = {
     name: string;
     powerConsumption: number;
