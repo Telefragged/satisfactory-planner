@@ -10180,3 +10180,8 @@ yargs@^11.0.0:
     which-module "^2.0.0"
     y18n "^3.2.1"
     yargs-parser "^9.0.2"
+
+zima-reducer@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/zima-reducer/-/zima-reducer-1.0.1.tgz#b79dd01a130b33497492516091a5682c6e076e8e"
+  integrity sha512-6XG+KW6ntCaZiGRStSzCjCBej1gihBlMCSe8X/fVD0+NtCQh4Uw8TrQ3p7OOiijol/SiRYU4FCQ7ikFf0JVALg==

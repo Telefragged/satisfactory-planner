@@ -1,6 +1,6 @@
 import * as React from 'react';
 import _ from 'lodash';
-import zimaReducer from '../zimaReducer';
+import zimaReducer from 'zima-reducer';
 
 type State = {
     maxOverclock: number;

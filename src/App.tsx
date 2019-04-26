@@ -6,7 +6,7 @@ import { TypeSelector } from './components/TypeSelector';
 import { AmountSelector } from './components/AmountSelector';
 import { OverclockSelector } from './components/OverclockSelector';
 import { RecipeSelector } from './components/RecipeSelector';
-import zimaReducer from './zimaReducer';
+import zimaReducer from 'zima-reducer';
 
 type State = {
     selectedType?: OutputType;

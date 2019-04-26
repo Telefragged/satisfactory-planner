@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { OutputType, Recipe, outputTypes } from '../types';
-import zimaReducer from '../zimaReducer'
+import zimaReducer from 'zima-reducer'
 
 interface State {
     outputTypes: OutputType[]
